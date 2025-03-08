@@ -20,7 +20,7 @@ Welcome to the **Reports Management System**! This database is designed to handl
 
 ## 📂 Database Schema Overview
 
-The database consists of **three main tables**:
+The database consists of **four main tables**:
 
 1️⃣ **`bas_reports`** - Stores metadata of reports.
 ```sql
@@ -34,25 +34,39 @@ CREATE TABLE bas_reports (
 );
 ```
 
-2️⃣ **`bas_report_entries`** - Stores key-value data for any report.
+2️⃣ **`bas_report_data`** - Defines the report's data structure.
 ```sql
-CREATE TABLE bas_report_entries (
-    entry_id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE bas_report_data (
+    data_id INT PRIMARY KEY AUTO_INCREMENT,
     report_id INT NOT NULL,
-    data_key VARCHAR(64) NOT NULL COMMENT 'E.g., orders, returns, assigned_count',
-    data_value VARCHAR(255) NOT NULL COMMENT 'Stores numeric/string values',
+    data_key VARCHAR(32) NOT NULL COMMENT 'E.g., orders, returns, assigned_count',
+    data_query TEXT COMMENT 'Query to fetch data for report generation',
+    data_status CHAR(1) DEFAULT 'A' COMMENT 'A => Active, D => Disabled',
+    data_created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_updated_date DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (report_id) REFERENCES bas_reports(report_id) ON DELETE CASCADE
 );
 ```
 
-3️⃣ **`bas_report_list_entries`** - Stores list-based data (e.g., UIDs in QA Reports).
+3️⃣ **`bas_report_entries`** - Stores key-value data for any report.
+```sql
+CREATE TABLE bas_report_entries (
+    entry_id INT PRIMARY KEY AUTO_INCREMENT,
+    report_id INT NOT NULL,
+    data_id INT NOT NULL COMMENT 'Foreign key from bas_report_data',
+    data_value VARCHAR(255) NOT NULL COMMENT 'Stores numeric/string values',
+    FOREIGN KEY (report_id) REFERENCES bas_reports(report_id) ON DELETE CASCADE,
+    FOREIGN KEY (data_id) REFERENCES bas_report_data(data_id) ON DELETE CASCADE
+);
+```
+
+4️⃣ **`bas_report_list_entries`** - Stores list-based data (e.g., UIDs in QA Reports).
 ```sql
 CREATE TABLE bas_report_list_entries (
     list_id INT PRIMARY KEY AUTO_INCREMENT,
-    report_id INT NOT NULL,
-    data_key VARCHAR(64) NOT NULL COMMENT 'E.g., assigned_uids, repaired_uids',
+    entry_id INT NOT NULL COMMENT 'Foreign key from bas_report_entries',
     data_value VARCHAR(64) NOT NULL COMMENT 'Stores one item from the list',
-    FOREIGN KEY (report_id) REFERENCES bas_reports(report_id) ON DELETE CASCADE
+    FOREIGN KEY (entry_id) REFERENCES bas_report_entries(entry_id) ON DELETE CASCADE
 );
 ```
 
@@ -86,33 +100,32 @@ VALUES ('QA', NOW(), 'D');
 SELECT LAST_INSERT_ID() INTO @report_id;
 ```
 
-#### 📝 Insert Key-Value Data
+#### 📝 Insert Data Key Definition
 ```sql
-INSERT INTO bas_report_entries (report_id, data_key, data_value)
+INSERT INTO bas_report_data (report_id, data_key, data_query)
 VALUES 
-(@report_id, 'sangita_assigned_count', '50'),
-(@report_id, 'sangita_repaired_count', '45'),
-(@report_id, 'sangita_cr_count', '4'),
-(@report_id, 'sangita_liquidation_count', '1'),
-(@report_id, 'sangita_return_count', '5');
+(@report_id, 'assigned_count', 'SELECT COUNT(*) FROM assigned_table WHERE report_id = @report_id');
+SELECT LAST_INSERT_ID() INTO @data_id;
+```
+
+#### 📊 Insert Key-Value Data
+```sql
+INSERT INTO bas_report_entries (report_id, data_id, data_value)
+VALUES (@report_id, @data_id, '50');
+SELECT LAST_INSERT_ID() INTO @entry_id;
 ```
 
 #### 📋 Insert List-Based Data (UIDs)
 ```sql
-INSERT INTO bas_report_list_entries (report_id, data_key, data_value)
+INSERT INTO bas_report_list_entries (entry_id, data_value)
 VALUES 
-(@report_id, 'sangita_assigned_uids', 'SF45SK000001'),
-(@report_id, 'sangita_assigned_uids', 'SF45SK000002'),
-(@report_id, 'sangita_repaired_uids', 'SF45SK000003'),
-(@report_id, 'sangita_repaired_uids', 'SF45SK000004'),
-(@report_id, 'sangita_cr_uids', 'SF45SK000005'),
-(@report_id, 'sangita_liquidation_uids', 'SF45SK000006'),
-(@report_id, 'sangita_return_uids', 'SF45SK000007'),
-(@report_id, 'sangita_return_uids', 'SF45SK000008');
+(@entry_id, 'SF45SK000001'),
+(@entry_id, 'SF45SK000002');
 ```
 
 ---
 
-This example illustrates how any report type can be **dynamically stored** in the database using structured tables. 🚀
+This refined structure ensures **hierarchical organization**, improves **data integrity**, and allows **dynamic report generation** based on SQL queries. 🚀
 
-Would you like additional queries or optimizations? 😊
+Would you like additional optimizations or sample report retrieval queries? 😊
+

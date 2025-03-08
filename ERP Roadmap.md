@@ -1,4 +1,4 @@
-**🚀 Roadmap for E-Commerce ERP Web Application**
+## **🚀 Roadmap for E-Commerce ERP Web Application**
 
 ---
 
@@ -10,7 +10,7 @@
 - **⚙️ Back-End:** Node.js & Python
 - **📦 Databases:** MySQL & MongoDB
 - **🔐 Authentication:** JWT (Access & Refresh Tokens)
-- **🌐 Infrastructure:** API Gateway, ABL (Application Load Balancer)
+- **🌐 Infrastructure:** API Gateway, ALB (Application Load Balancer)
 - **🚢 Deployment:** Docker, Kubernetes, AWS/GCP
 - **🛡️ Security:** OAuth2, Role-Based Access Control (RBAC), HTTPS, Rate Limiting
 
@@ -37,7 +37,7 @@ Each microservice is independent and handles a specific domain:
 
 ### **2.3 🗄️ Databases**
 - **🛢️ MySQL** - Structured data like orders, users, products
-- **📂 MongoDB** - Unstructured data like logs, analytics, and product reviews
+- **📂 MongoDB** - Unstructured data like logs, accounts, and product reviews
 
 ---
 
@@ -53,7 +53,7 @@ Each microservice is independent and handles a specific domain:
 
 ### **3.2 🛡️ Authorization**
 - 🔧 Implement **Role-Based Access Control (RBAC)**
-- 👥 Users have roles (Admin, Seller, Customer, etc.)
+- 👥 Users have roles (Super Admin, Seller, QC, QA, etc....)
 - 🔑 API Gateway checks user permissions before forwarding request
 
 ---
@@ -129,7 +129,7 @@ Each microservice is independent and handles a specific domain:
 |-----------------|-------------------------------------|----------|
 | 🏗️ Phase 1        | Project Setup, CI/CD, Authentication | 1 Month  |
 | 🚀 Phase 2        | Microservices Development (MVP)      | 2 Months |
-| 🎨 Phase 3        | Frontend Development        | 1 Months |
+| 🎨 Phase 3        | Frontend Development          | 1 Months |
 | 🔐 Phase 4        | Security & Testing                   | 1 Month  |
 
 ---

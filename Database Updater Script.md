@@ -56,14 +56,38 @@ INSERT INTO users (username) VALUES ('JaneDoe');
 -- GROUP END
 ```
 
-### ⚡ 4. **Non-Grouped Queries (Immediate Execution)**
+### 🔄 4. **Create Triggers**
+Create Trigger query inside a `TRIGGER START` and `TRIGGER END` block run as a single query.
+
+```sql
+-- TRIGGER START
+CREATE TRIGGER trg_before_update_picklist_product
+BEFORE UPDATE ON bas_inventory_picklist_products
+FOR EACH ROW
+BEGIN
+    -- ✅ Update pending quantity
+    SET NEW.pending_quantity = NEW.total_quantity - NEW.picked_quantity;
+
+    -- ✅ Update status based on quantities
+    IF NEW.picked_quantity = NEW.total_quantity THEN
+        SET NEW.status = '2'; -- Completed
+    ELSEIF NEW.picked_quantity > 0 AND NEW.picked_quantity <> NEW.total_quantity THEN
+        SET NEW.status = '3'; -- Partially completed
+    ELSE
+        SET NEW.status = '0'; -- Pending
+    END IF;
+END;
+-- TRIGGER END
+```
+
+### ⚡ 5. **Non-Grouped Queries (Immediate Execution)**
 These queries execute immediately without rollback support.
 
 ```sql
 INSERT INTO products (name) VALUES ('Laptop');
 ```
 
-### 🔀 5. **Handling Custom Delimiters**
+### 🔀 6. **Handling Custom Delimiters**
 Use custom delimiters when defining stored procedures, triggers, or functions.
 Restore the default delimiter (`;`) after execution.
 
